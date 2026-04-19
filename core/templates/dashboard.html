@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+    <nav>
+        <a href="/dashboard/">Dashboard</a> |
+        <a href="/corridas/">Corridas</a> |
+        <a href="/despesas/">Despesas</a> |
+        <a href="/logout/">Sair</a>
+    </nav>
+
+    <h1>Dashboard</h1>
+
+    {% if erro %}
+        <p style="color: red;">{{ erro }}</p>
+    {% endif %}
+
+    <h2>Resumo Geral</h2>
+    <p>Total de Ganhos: R$ {{ total_corridas|floatformat:2 }}</p>
+    <p>Total de Despesas: R$ {{ total_despesas|floatformat:2 }}</p>
+    <p><strong>Lucro: R$ {{ lucro|floatformat:2 }}</strong></p>
+
+    <hr>
+
+    <h2>Ganhos por Plataforma</h2>
+    <ul>
+        {% for item in ganhos_por_plataforma %}
+            <li>{{ item.plataforma__nome }}: R$ {{ item.total|floatformat:2 }}</li>
+        {% empty %}
+            <li>Nenhuma corrida cadastrada</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

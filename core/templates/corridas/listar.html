@@ -1,0 +1,27 @@
+<h2>Corridas</h2>
+
+<a href="/corridas/nova/">Nova Corrida</a>
+
+<ul>
+{% for corrida in corridas %}
+<li>
+    {{ corrida.plataforma.nome }} - R$ {{ corrida.valor|floatformat:2 }}
+    <a href="/corridas/editar/{{ corrida.id }}">Editar</a>
+    <a href="/despesas/excluir/{{ despesa.id }}/" 
+   onclick="return confirm('Tem certeza que deseja excluir esta despesa?')">
+   Excluir
+    </a>
+</li>
+{% empty %}
+<li>Nenhuma corrida cadastrada</li>
+{% endfor %}
+</ul>
+
+<form action="/despesas/excluir/{{ despesa.id }}/" method="POST" style="display:inline;">
+    {% csrf_token %}
+    <button type="submit" onclick="return confirm('Tem certeza que deseja excluir esta despesa?')">
+        Excluir
+    </button>
+</form>
+
+<a href="/dashboard/">Voltar ao Dashboard</a>

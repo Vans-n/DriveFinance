@@ -1,0 +1,13 @@
+<h2>Despesas</h2>
+
+<a href="/despesas/nova/">Nova Despesa</a>
+
+<ul>
+    {% for despesa in despesas %}
+        <li>
+            {{ despesa.descricao }} - R$ {{ despesa.valor }} -
+            <a href="/despesas/editar/{{ despesa.id }}/">Editar</a>
+            <a href="/despesas/excluir/{{ despesa.id }}/">Excluir</a>
+        </li>
+    {% endfor %}
+</ul>

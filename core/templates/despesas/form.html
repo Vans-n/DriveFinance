@@ -1,0 +1,47 @@
+<h2>Nova Despesa</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <label for="id_descricao">Descrição:</label>
+    {{ form.descricao }}
+
+    <br><br>
+
+    <label for="id_valor">Valor:</label>
+    <input 
+        type="text" 
+        name="valor" 
+        id="id_valor" 
+        placeholder="Ex: 29,99"
+        title="Digite o valor da despesa"
+    >
+
+    <br><br>
+
+    <label for="id_data">Data:</label>
+    {{ form.data }}
+
+    <br><br>
+
+    <button type="submit">Salvar</button>
+</form>
+
+<script>
+const input = document.getElementById("id_valor");
+
+input.addEventListener("input", function (e) {
+    let value = e.target.value.replace(/\D/g, "");
+
+    if (!value) {
+        e.target.value = "";
+        return;
+    }
+
+    value = (value / 100).toFixed(2);
+    value = value.replace(".", ",");
+    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    e.target.value = value;
+});
+</script>

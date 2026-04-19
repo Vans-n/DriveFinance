@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Corrida</title>
+</head>
+<body>
+
+<h2>Nova Corrida</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <p>{{ message }}</p>
+    {% endfor %}
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <label>Plataforma:</label>
+    {{ form.plataforma }}
+
+    <br><br>
+    
+    <label>Valor:</label>
+    <input type="text" name="valor" id="id_valor" placeholder="Ex: 29,99">
+
+    <br><br>
+
+    <label>Data:</label>
+    {{ form.data }}
+
+    <br><br>
+
+    <button type="submit">Salvar</button>
+</form>
+
+<a href="/corridas/">Voltar</a>
+
+<script>
+const input = document.getElementById("id_valor");
+
+input.addEventListener("input", function (e) {
+    let value = e.target.value.replace(/\D/g, "");
+
+    if (!value) {
+        e.target.value = "";
+        return;
+    }
+
+    value = (value / 100).toFixed(2);
+
+    // troca ponto por vírgula
+    value = value.replace(".", ",");
+
+    // adiciona separador de milhar
+    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+    e.target.value = value;
+});
+</script>
+
+</body>
+</html>
