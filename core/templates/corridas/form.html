@@ -1,65 +1,64 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Corrida</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h2>Nova Corrida</h2>
+{% block title %}Nova Corrida{% endblock %}
 
-{% if messages %}
-    {% for message in messages %}
-        <p>{{ message }}</p>
-    {% endfor %}
-{% endif %}
+{% block content %}
 
+<h1>Nova Corrida</h1>
+
+<div class="card">
 <form method="POST">
     {% csrf_token %}
-    
-    <label>Plataforma:</label>
-    {{ form.plataforma }}
 
-    <br><br>
-    
-    <label>Valor:</label>
-    <input type="text" name="valor" id="id_valor" placeholder="Ex: 29,99">
+    <div>
+        <label for="id_plataforma">Plataforma</label>
+        {{ form.plataforma }}
+    </div>
 
-    <br><br>
+    <div>
+        <label for="valor_display">Valor</label>
+        <div class="input-money">
+            <span>R$</span>
+            <input 
+                type="text" 
+                id="valor_display"
+                placeholder="0,00"
+                required
+            >
+        </div>
+        {{ form.valor.as_hidden }}
+    </div>
 
-    <label>Data:</label>
-    {{ form.data }}
+    <div>
+        <label for="id_data">Data</label>
+        {{ form.data }}
+    </div>
 
-    <br><br>
-
-    <button type="submit">Salvar</button>
+    <button class="button" type="submit">Salvar</button>
 </form>
-
-<a href="/corridas/">Voltar</a>
+</div>
 
 <script>
-const input = document.getElementById("id_valor");
+const display = document.getElementById("valor_display");
+const hiddenInput = document.getElementById("id_valor");
 
-input.addEventListener("input", function (e) {
+display.addEventListener("input", function (e) {
     let value = e.target.value.replace(/\D/g, "");
 
     if (!value) {
         e.target.value = "";
+        hiddenInput.value = "";
         return;
     }
 
     value = (value / 100).toFixed(2);
 
-    // troca ponto por vírgula
-    value = value.replace(".", ",");
+    let displayValue = value.replace(".", ",");
+    displayValue = displayValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    e.target.value = displayValue;
 
-    // adiciona separador de milhar
-    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-    e.target.value = value;
+    hiddenInput.value = value;
 });
 </script>
 
-</body>
-</html>
+{% endblock %}

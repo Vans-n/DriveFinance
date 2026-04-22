@@ -4,38 +4,155 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <!-- FLATPICKR -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 
 <body>
 
-    <nav>
-        <a href="/dashboard/">Dashboard</a> |
-        <a href="/corridas/">Corridas</a> |
-        <a href="/despesas/">Despesas</a> |
+<nav>
+    <div><strong>DriveFinance</strong></div>
+    <div>
+        <a href="/dashboard/">Dashboard</a>
+        <a href="/corridas/">Corridas</a>
+        <a href="/despesas/">Despesas</a>
         <a href="/logout/">Sair</a>
-    </nav>
+    </div>
+</nav>
 
-    <h1>Dashboard</h1>
+<div class="container">
 
-    {% if erro %}
-        <p style="color: red;">{{ erro }}</p>
-    {% endif %}
+    <h1>PAINEL DE CONTROLE</h1>
 
-    <h2>Resumo Geral</h2>
-    <p>Total de Ganhos: R$ {{ total_corridas|floatformat:2 }}</p>
-    <p>Total de Despesas: R$ {{ total_despesas|floatformat:2 }}</p>
-    <p><strong>Lucro: R$ {{ lucro|floatformat:2 }}</strong></p>
+    <!-- FILTRO -->
+    <div class="card">
+        <h3>Filtrar por período</h3>
 
-    <hr>
+        <a class="button" href="/dashboard/">Todos</a>
+        <a class="button" href="/dashboard/?periodo=hoje">Hoje</a>
+        <a class="button" href="/dashboard/?periodo=semana">7 dias</a>
+        <a class="button" href="/dashboard/?periodo=mes">Mês</a>
 
-    <h2>Ganhos por Plataforma</h2>
-    <ul>
-        {% for item in ganhos_por_plataforma %}
-            <li>{{ item.plataforma__nome }}: R$ {{ item.total|floatformat:2 }}</li>
-        {% empty %}
-            <li>Nenhuma corrida cadastrada</li>
-        {% endfor %}
-    </ul>
+
+
+        <form method="GET" class="filtro-data">
+            <div class="campo-data">
+                <label for="data">Buscar por data:</label>
+                <input type="text" id="data" name="data" placeholder="Selecione uma data" required>
+            </div>
+
+            <button type="submit" class="button">Buscar</button>
+        </form>
+
+    <!-- RESUMO -->
+    <div class="resumo">
+        <div class="resumo-card">
+            <p>Ganhos</p>
+            <strong>R$ {{ total_corridas|floatformat:2 }}</strong>
+        </div>
+        <div class="resumo-card">
+            <p>Despesas</p>
+            <strong>R$ {{ total_despesas|floatformat:2 }}</strong>
+        </div>
+        <div class="resumo-card">
+            <p>Lucro</p>
+            <strong>R$ {{ lucro|floatformat:2 }}</strong>
+        </div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid">
+
+        <!-- TABELA -->
+        <div class="card">
+            <h3>Resumo de Atividades</h3>
+            <table>
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                </tr>
+                {% for a in atividades %}
+                <tr>
+                    <td>{{ a.data|date:"d/m/Y" }}</td>
+                    <td>{{ a.descricao }}</td>
+                    {% if a.tipo == 'despesa' %}
+                        <td style="color: #ff6b6b;">- R$ {{ a.valor|floatformat:2 }}</td>
+                    {% else %}
+                        <td style="color: #69db7c;">+ R$ {{ a.valor|floatformat:2 }}</td>
+                    {% endif %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">Nenhuma atividade cadastrada</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- GRÁFICO -->
+        <div class="card">
+            <h3>Visão Geral</h3>
+            <canvas id="graficoGanhos"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- CHART -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- FLATPICKR -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    flatpickr("#data", {
+        dateFormat: "Y-m-d",
+        altInput: true,
+        altFormat: "d/m/Y",
+        allowInput: false,
+
+        monthSelectorType: "static",
+        disableMobile: true
+    });
+
+    // GRÁFICO
+    const labelsGrafico = JSON.parse('{{ labels|escapejs }}');
+    const valoresGrafico = JSON.parse('{{ valores|escapejs }}');
+
+    const ctx = document.getElementById('graficoGanhos').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labelsGrafico,
+            datasets: [{
+                label: 'Ganhos',
+                data: valoresGrafico,
+                borderColor: '#4fc3f7',
+                backgroundColor: 'rgba(79, 195, 247, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: { color: '#ffffff' }
+                }
+            },
+            scales: {
+                x: { ticks: { color: '#cccccc' } },
+                y: { ticks: { color: '#cccccc' } }
+            }
+        }
+    });
+</script>
 
 </body>
 </html>
