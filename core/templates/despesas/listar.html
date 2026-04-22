@@ -1,13 +1,44 @@
-<h2>Despesas</h2>
+{% extends 'base.html' %}
 
-<a href="/despesas/nova/">Nova Despesa</a>
+{% block title %}Despesas{% endblock %}
 
-<ul>
-    {% for despesa in despesas %}
-        <li>
-            {{ despesa.descricao }} - R$ {{ despesa.valor }} -
-            <a href="/despesas/editar/{{ despesa.id }}/">Editar</a>
-            <a href="/despesas/excluir/{{ despesa.id }}/">Excluir</a>
-        </li>
-    {% endfor %}
-</ul>
+{% block content %}
+
+<h1>Despesas</h1>
+
+<div class="card">
+    <a class="button" href="/despesas/nova/">+ Nova Despesa</a>
+    <a class="button" href="/dashboard/">← Dashboard</a>
+</div>
+
+<div class="card">
+    {% if despesas %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for despesa in despesas %}
+                <tr>
+                    <td>{{ despesa.data|date:"d/m/Y" }}</td>
+                    <td>{{ despesa.descricao }}</td>
+                    <td>R$ {{ despesa.valor|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'editar_despesa' despesa.id %}">Editar</a>
+                        <a href="{% url 'excluir_despesa' despesa.id %}">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhuma despesa cadastrada ainda.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

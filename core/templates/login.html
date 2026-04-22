@@ -4,25 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <h2>Login</h2>
 
-    {% if messages %}
-        {% for message in messages %}
-            <p>{{ message }}</p>
-        {% endfor %}
-    {% endif %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Login</h2>
 
-    <form method="POST">
-        {% csrf_token %}
-        <label for="username">Usuário:</label>
-        <input type="text" id="username" name="username">
+        {% if messages %}
+            {% for message in messages %}
+                <p class="msg-{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
 
-        <label for="password">Senha:</label>
-        <input type="password" id="password" name="password">
+        <form method="POST">
+            {% csrf_token %}
 
-        <button type="submit">Entrar</button>
-    </form>
+            <div>
+                <label for="username">Usuário</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+
+            <div>
+                <label for="password">Senha</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit">Entrar</button>
+        </form>
+
+        <p class="form-footer">Não tem conta? <a href="/cadastro/">Cadastre-se</a></p>
+    </div>
+</div>
+
 </body>
 </html>

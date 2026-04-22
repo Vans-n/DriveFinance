@@ -1,47 +1,65 @@
-<h2>Nova Despesa</h2>
+{% extends 'base.html' %}
 
+{% block title %}Nova Despesa{% endblock %}
+
+{% block content %}
+
+<h1>Nova Despesa</h1>
+
+<div class="card">
 <form method="POST">
     {% csrf_token %}
-    
-    <label for="id_descricao">Descrição:</label>
-    {{ form.descricao }}
 
-    <br><br>
+    <div>
+        <label for="id_descricao">Descrição</label>
+        {{ form.descricao }}
+    </div>
 
-    <label for="id_valor">Valor:</label>
-    <input 
-        type="text" 
-        name="valor" 
-        id="id_valor" 
-        placeholder="Ex: 29,99"
-        title="Digite o valor da despesa"
-    >
+    <div>
+        <label for="valor_display">Valor</label>
+        <div class="input-money">
+            <span>R$</span>
+            <input 
+                type="text" 
+                id="valor_display"
+                placeholder="0,00"
+                required
+            >
+        </div>
+        {{ form.valor.as_hidden }}
+    </div>
 
-    <br><br>
+    <div>
+        <label for="id_data">Data</label>
+        {{ form.data }}
+    </div>
 
-    <label for="id_data">Data:</label>
-    {{ form.data }}
-
-    <br><br>
-
-    <button type="submit">Salvar</button>
+    <button class="button" type="submit">Salvar</button>
 </form>
+</div>
 
 <script>
-const input = document.getElementById("id_valor");
+const display = document.getElementById("valor_display");
+const hiddenInput = document.getElementById("id_valor");
 
-input.addEventListener("input", function (e) {
-    let value = e.target.value.replace(/\D/g, "");
+display.addEventListener("input", function (e) {
+    let digits = e.target.value.replace(/\D/g, "");
 
-    if (!value) {
+    if (!digits) {
         e.target.value = "";
+        hiddenInput.value = "";
         return;
     }
 
-    value = (value / 100).toFixed(2);
-    value = value.replace(".", ",");
-    value = value.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    let number = parseInt(digits, 10) / 100;
 
-    e.target.value = value;
+    hiddenInput.value = number.toFixed(2);
+
+    e.target.value = number.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
 });
 </script>
+
+{% endblock %}

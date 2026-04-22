@@ -1,27 +1,44 @@
-<h2>Corridas</h2>
+{% extends 'base.html' %}
 
-<a href="/corridas/nova/">Nova Corrida</a>
+{% block title %}Corridas{% endblock %}
 
-<ul>
-{% for corrida in corridas %}
-<li>
-    {{ corrida.plataforma.nome }} - R$ {{ corrida.valor|floatformat:2 }}
-    <a href="/corridas/editar/{{ corrida.id }}">Editar</a>
-    <a href="/despesas/excluir/{{ despesa.id }}/" 
-   onclick="return confirm('Tem certeza que deseja excluir esta despesa?')">
-   Excluir
-    </a>
-</li>
-{% empty %}
-<li>Nenhuma corrida cadastrada</li>
-{% endfor %}
-</ul>
+{% block content %}
 
-<form action="/despesas/excluir/{{ despesa.id }}/" method="POST" style="display:inline;">
-    {% csrf_token %}
-    <button type="submit" onclick="return confirm('Tem certeza que deseja excluir esta despesa?')">
-        Excluir
-    </button>
-</form>
+<h1>Corridas</h1>
 
-<a href="/dashboard/">Voltar ao Dashboard</a>
+<div class="card">
+    <a class="button" href="/corridas/nova/">+ Nova Corrida</a>
+    <a class="button" href="/dashboard/">← Dashboard</a>
+</div>
+
+<div class="card">
+    {% if corridas %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Plataforma</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for corrida in corridas %}
+                <tr>
+                    <td>{{ corrida.data|date:"d/m/Y" }}</td>
+                    <td>{{ corrida.plataforma.nome }}</td>
+                    <td>R$ {{ corrida.valor|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'editar_corrida' corrida.id %}">Editar</a>
+                        <a href="{% url 'excluir_corrida' corrida.id %}">Excluir</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Nenhuma corrida cadastrada ainda.</p>
+    {% endif %}
+</div>
+
+{% endblock %}
