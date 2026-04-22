@@ -6,6 +6,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('cadastro/', views.cadastro_view, name='cadastro'),
+    path('', views.home, name='home'),
 
     # Dashboard
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('despesas/nova/', views.criar_despesa, name='criar_despesa'),
     path('despesas/editar/<int:id>/', views.editar_despesa, name='editar_despesa'),
     path('despesas/excluir/<int:id>/', views.excluir_despesa, name='excluir_despesa'),
+    
 ]

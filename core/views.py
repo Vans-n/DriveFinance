@@ -8,15 +8,14 @@ from .models import Corrida, Despesa, Motorista
 from .forms import CorridaForm, DespesaForm
 import json
 from django.contrib.auth.models import User
+from django.shortcuts import render
 
 
 def get_motorista(user):
     return Motorista.objects.filter(usuario=user).first()
 
 
-# =========================
 # DASHBOARD
-# =========================
 @login_required
 def dashboard(request):
     motorista = get_motorista(request.user)
@@ -89,10 +88,7 @@ def dashboard(request):
         'valores': json.dumps(valores),
     })
 
-
-# =========================
 # LOGIN / LOGOUT
-# =========================
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -114,9 +110,7 @@ def logout_view(request):
     return redirect('login')
 
 
-# =========================
 # CORRIDAS
-# =========================
 @login_required
 def criar_corrida(request):
     motorista = get_motorista(request.user)
@@ -192,9 +186,7 @@ def excluir_corrida(request, id):
     return render(request, 'corridas/confirmar_exclusao.html', {'corrida': corrida})
 
 
-# =========================
 # DESPESAS
-# =========================
 @login_required
 def criar_despesa(request):
     motorista = get_motorista(request.user)
@@ -262,10 +254,7 @@ def excluir_despesa(request, id):
 
     return render(request, 'despesas/confirmar_exclusao.html', {'despesa': despesa})
 
-
-# =========================
 # CADASTRO
-# =========================
 def cadastro_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -296,3 +285,43 @@ def cadastro_view(request):
         return redirect('login')
 
     return render(request, 'cadastro.html')
+
+
+# CADASTRO
+def cadastro_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirmar = request.POST.get("confirmar")
+
+        if password != confirmar:
+            messages.error(request, "As senhas não coincidem.")
+            return render(request, 'cadastro.html')
+
+        if len(password) < 6:
+            messages.error(request, "A senha deve ter pelo menos 6 caracteres.")
+            return render(request, 'cadastro.html')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Esse usuário já existe.")
+            return render(request, 'cadastro.html')
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Esse e-mail já está cadastrado.")
+            return render(request, 'cadastro.html')
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+        Motorista.objects.create(usuario=user)
+
+        messages.success(request, "Conta criada com sucesso! Faça login.")
+        return redirect('login')
+
+    return render(request, 'cadastro.html')
+
+
+# HOME
+def home(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'home.html')

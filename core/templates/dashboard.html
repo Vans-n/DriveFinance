@@ -16,7 +16,7 @@
 
 <nav>
     <div><strong>DriveFinance</strong></div>
-    <div>
+    <div class="nav-menu">
         <a href="/dashboard/">Dashboard</a>
         <a href="/corridas/">Corridas</a>
         <a href="/despesas/">Despesas</a>
@@ -26,27 +26,27 @@
 
 <div class="container">
 
-    <h1>PAINEL DE CONTROLE</h1>
+    <h1>Painel de Controle</h1>
 
     <!-- FILTRO -->
     <div class="card">
         <h3>Filtrar por período</h3>
 
-        <a class="button" href="/dashboard/">Todos</a>
-        <a class="button" href="/dashboard/?periodo=hoje">Hoje</a>
-        <a class="button" href="/dashboard/?periodo=semana">7 dias</a>
-        <a class="button" href="/dashboard/?periodo=mes">Mês</a>
-
-
+        <div class="filtro-botoes">
+            <a class="button" href="/dashboard/">Todos</a>
+            <a class="button" href="/dashboard/?periodo=hoje">Hoje</a>
+            <a class="button" href="/dashboard/?periodo=semana">7 dias</a>
+            <a class="button" href="/dashboard/?periodo=mes">Mês</a>
+        </div>
 
         <form method="GET" class="filtro-data">
-            <div class="campo-data">
+            <div>
                 <label for="data">Buscar por data:</label>
                 <input type="text" id="data" name="data" placeholder="Selecione uma data" required>
             </div>
-
-            <button type="submit" class="button">Buscar</button>
+            <button type="submit">Buscar</button>
         </form>
+    </div>
 
     <!-- RESUMO -->
     <div class="resumo">
@@ -70,34 +70,38 @@
         <!-- TABELA -->
         <div class="card">
             <h3>Resumo de Atividades</h3>
-            <table>
-                <tr>
-                    <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                </tr>
-                {% for a in atividades %}
-                <tr>
-                    <td>{{ a.data|date:"d/m/Y" }}</td>
-                    <td>{{ a.descricao }}</td>
-                    {% if a.tipo == 'despesa' %}
-                        <td style="color: #ff6b6b;">- R$ {{ a.valor|floatformat:2 }}</td>
-                    {% else %}
-                        <td style="color: #69db7c;">+ R$ {{ a.valor|floatformat:2 }}</td>
-                    {% endif %}
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3">Nenhuma atividade cadastrada</td>
-                </tr>
-                {% endfor %}
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <tr>
+                        <th>Data</th>
+                        <th>Descrição</th>
+                        <th>Valor</th>
+                    </tr>
+                    {% for a in atividades %}
+                    <tr>
+                        <td>{{ a.data|date:"d/m/Y" }}</td>
+                        <td>{{ a.descricao }}</td>
+                        {% if a.tipo == 'despesa' %}
+                            <td style="color: #ff6b6b;">- R$ {{ a.valor|floatformat:2 }}</td>
+                        {% else %}
+                            <td style="color: #69db7c;">+ R$ {{ a.valor|floatformat:2 }}</td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3">Nenhuma atividade cadastrada</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
 
         <!-- GRÁFICO -->
         <div class="card">
             <h3>Visão Geral</h3>
-            <canvas id="graficoGanhos"></canvas>
+            <div class="grafico-wrapper">
+                <canvas id="graficoGanhos"></canvas>
+            </div>
         </div>
 
     </div>
@@ -116,7 +120,6 @@
         altInput: true,
         altFormat: "d/m/Y",
         allowInput: false,
-
         monthSelectorType: "static",
         disableMobile: true
     });
@@ -141,6 +144,8 @@
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: true,
             plugins: {
                 legend: {
                     labels: { color: '#ffffff' }

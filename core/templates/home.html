@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveFinance — Controle seus ganhos como motorista</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 12h8M12 8l4 4-4 4"/>
+        </svg>
+        DriveFinance
+    </div>
+    <nav class="nav-links">
+        <a href="#funcionalidades">Funcionalidades</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="/login/">Entrar</a>
+        <a class="btn-primary" href="/cadastro/">Começar grátis</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-badge">Feito para motoristas de app</div>
+    <h1>Controle seus ganhos<br><span class="hero-highlight">em tempo real</span></h1>
+    <p>Organize corridas, despesas e visualize seu lucro. Tudo em um só lugar, simples e rápido.</p>
+
+    <div class="hero-buttons">
+        <a class="btn-primary" href="/cadastro/">Criar conta grátis</a>
+        <a class="btn-secondary" href="/login/">Já tenho conta</a>
+    </div>
+
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <strong>+2k</strong>
+            <span>Motoristas</span>
+        </div>
+        <div class="hero-stat">
+            <strong>100%</strong>
+            <span>Gratuito</span>
+        </div>
+        <div class="hero-stat">
+            <strong>3 min</strong>
+            <span>Para começar</span>
+        </div>
+        <div class="hero-stat">
+            <strong>Uber, 99+</strong>
+            <span>Plataformas</span>
+        </div>
+    </div>
+</section>
+
+<!-- PREVIEW DASHBOARD -->
+<div class="preview-section">
+    <div class="preview-header">
+        <span>Preview do dashboard</span>
+        <small>Abril 2026 &mdash; Exemplo</small>
+    </div>
+    <div class="preview-stats">
+        <div class="preview-stat">
+            <div class="label">Corridas</div>
+            <div class="val val-blue">R$ 2.840</div>
+        </div>
+        <div class="preview-stat">
+            <div class="label">Despesas</div>
+            <div class="val val-red">R$ 620</div>
+        </div>
+        <div class="preview-stat">
+            <div class="label">Lucro líquido</div>
+            <div class="val val-green">R$ 2.220</div>
+        </div>
+    </div>
+    <div class="preview-row">
+        <span>Uber &mdash; corrida centro</span>
+        <span class="tag tag-ride">corrida</span>
+        <span class="val-blue">+R$ 34,00</span>
+    </div>
+    <div class="preview-row">
+        <span>Gasolina &mdash; Posto Shell</span>
+        <span class="tag tag-exp">despesa</span>
+        <span class="val-red">-R$ 180,00</span>
+    </div>
+    <div class="preview-row">
+        <span>99 &mdash; corrida aeroporto</span>
+        <span class="tag tag-ride">corrida</span>
+        <span class="val-blue">+R$ 87,00</span>
+    </div>
+    <div class="preview-row">
+        <span>Manutenção &mdash; troca de óleo</span>
+        <span class="tag tag-exp">despesa</span>
+        <span class="val-red">-R$ 120,00</span>
+    </div>
+</div>
+
+<!-- FUNCIONALIDADES -->
+<section class="features-section" id="funcionalidades">
+    <p class="section-label">Por que usar o DriveFinance</p>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/>
+                    <path d="M8 21h8M12 17v4"/>
+                </svg>
+            </div>
+            <h3>Dashboard inteligente</h3>
+            <p>Ganhos e despesas organizados automaticamente com gráficos claros.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+            </div>
+            <h3>Lucro exato</h3>
+            <p>Saiba quanto você realmente ganhou após todas as suas despesas.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                </svg>
+            </div>
+            <h3>Filtros por período</h3>
+            <p>Hoje, semana ou mês — compare seu desempenho facilmente.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2">
+                    <path d="M3 3h18v18H3zM3 9h18M9 21V9"/>
+                </svg>
+            </div>
+            <h3>Múltiplas plataformas</h3>
+            <p>Uber, 99, InDriver e mais — tudo consolidado em um único lugar.</p>
+        </div>
+    </div>
+</section>
+
+<!-- COMO FUNCIONA -->
+<section class="steps-section" id="como-funciona">
+    <h2>Como funciona</h2>
+    <div class="steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <h4>Crie sua conta</h4>
+            <p>Cadastro gratuito em menos de 2 minutos.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">2</div>
+            <h4>Registre corridas</h4>
+            <p>Informe o valor, plataforma e data de cada corrida.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">3</div>
+            <h4>Adicione despesas</h4>
+            <p>Gasolina, manutenção e outros gastos do dia a dia.</p>
+        </div>
+        <div class="step">
+            <div class="step-number">4</div>
+            <h4>Veja seu lucro</h4>
+            <p>Dashboard atualizado em tempo real com gráficos.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+    <h2>Comece agora, é gratuito</h2>
+    <p>Crie sua conta em menos de 2 minutos e tenha controle total dos seus ganhos.</p>
+    <div class="hero-buttons">
+        <a class="btn-primary" href="/cadastro/">Criar minha conta</a>
+        <a class="btn-secondary" href="/login/">Já tenho conta</a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    <p>Feito com ❤️ para motoristas &mdash; <span>DriveFinance</span> &copy; 2026</p>
+</footer>
+
+<script>
+    let lastScroll = 0;
+    const navbar = document.querySelector('.navbar');
+
+    window.addEventListener('scroll', () => {
+        const current = window.scrollY;
+
+        if (current > lastScroll && current > 80) {
+            navbar.classList.add('hidden');
+        } else {
+            navbar.classList.remove('hidden');
+        }
+
+        lastScroll = current;
+    });
+</script>
+
+</body>
+</html>
