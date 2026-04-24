@@ -1,41 +1,70 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
+
 <body>
 
 <div class="auth-container">
     <div class="auth-card">
+
         <h2>Login</h2>
 
         {% if messages %}
+        <!-- Exibe mensagens (erro, sucesso, etc.) -->
+
             {% for message in messages %}
-                <p class="msg-{{ message.tags }}">{{ message }}</p>
+                <p class="msg-{{ message.tags }}">
+                    {{ message }}
+                </p>
             {% endfor %}
+
         {% endif %}
 
         <form method="POST">
             {% csrf_token %}
+            <!-- Proteção contra CSRF -->
 
             <div>
                 <label for="username">Usuário</label>
-                <input type="text" id="username" name="username" required>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    autocomplete="username"
+                    required
+                >
+                <!-- Campo de usuário -->
             </div>
 
             <div>
                 <label for="password">Senha</label>
-                <input type="password" id="password" name="password" required>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    autocomplete="current-password"
+                    required
+                >
+                <!-- Campo de senha -->
             </div>
 
-            <button type="submit">Entrar</button>
+            <button type="submit">
+                Entrar
+            </button>
         </form>
 
-        <p class="form-footer">Não tem conta? <a href="/cadastro/">Cadastre-se</a></p>
+        <p class="form-footer">
+            Não tem conta? 
+            <a href="{% url 'cadastro' %}">Cadastre-se</a>
+        </p>
+        <!-- Link para cadastro -->
     </div>
 </div>
 

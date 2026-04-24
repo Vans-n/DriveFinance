@@ -7,58 +7,188 @@
 <h1>Nova Corrida</h1>
 
 <div class="card">
-<form method="POST">
-    {% csrf_token %}
 
-    <div>
-        <label for="id_plataforma">Plataforma</label>
-        {{ form.plataforma }}
-    </div>
+    <!-- FORMULÁRIO PRINCIPAL -->
+    <form method="POST">
+        {% csrf_token %}
+        <div>
+            <label for="id_plataforma">Plataforma</label>
 
-    <div>
-        <label for="valor_display">Valor</label>
-        <div class="input-money">
-            <span>R$</span>
-            <input 
-                type="text" 
-                id="valor_display"
-                placeholder="0,00"
-                required
-            >
+
+            <div style="display:flex; gap:10px; align-items:center;">
+                {{ form.plataforma }}
+
+                <!-- Abre modal para cadastrar nova plataforma -->
+                <button type="button" class="button" onclick="abrirModalPlataforma()">
+                    + Nova
+                </button>
+            </div>
         </div>
-        {{ form.valor.as_hidden }}
-    </div>
 
-    <div>
-        <label for="id_data">Data</label>
-        {{ form.data }}
-    </div>
+        <div>
+            <label for="valor_display">Valor</label>
+            <div class="input-money">
+                <span>R$</span>
+                <input
+                    type="text"
+                    id="valor_display"
+                    placeholder="0,00"
+                    required
+                >
+            </div>
 
-    <button class="button" type="submit">Salvar</button>
-</form>
+            {{ form.valor.as_hidden }}
+        </div>
+
+        <!-- CAMPO DATA -->
+        <div>
+            <label for="id_data">Data</label>
+            {{ form.data }}
+        </div>
+
+        <button class="button" type="submit">
+            Salvar
+        </button>
+
+        <!-- Volta para lista -->
+        <a class="button" href="{% url 'lista_corridas' %}">
+            ← Voltar
+        </a>
+
+    </form>
+</div>
+
+<div id="modal-plataforma" class="modal">
+    <div class="modal-content">
+
+        <h3>Nova Plataforma</h3>
+
+    
+        <div>
+            <label for="nome-plataforma">Nome</label>
+            <input type="text" id="nome-plataforma" placeholder="Ex: Uber, 99...">
+        </div>
+
+    
+        <div class="modal-botoes">
+
+        
+            <button class="button btn-primary" type="button" onclick="salvarPlataforma()">
+                Salvar
+            </button>
+
+    
+            <button class="button" type="button" onclick="fecharModalPlataforma()">
+                Cancelar
+            </button>
+
+        </div>
+
+        <!-- Mensagem de erro -->
+        <p id="erro-plataforma" style="color:#ff6b6b; margin-top:10px;"></p>
+
+    </div>
 </div>
 
 <script>
+
 const display = document.getElementById("valor_display");
+
+
 const hiddenInput = document.getElementById("id_valor");
 
+// Formata enquanto digita
 display.addEventListener("input", function (e) {
+
+    // Remove tudo que não for número
     let value = e.target.value.replace(/\D/g, "");
 
+    // Se estiver vazio limpa tudo
     if (!value) {
         e.target.value = "";
         hiddenInput.value = "";
         return;
     }
 
+    // Divide por 100 para virar decimal
     value = (value / 100).toFixed(2);
 
+    // Formata para padrão brasileiro
     let displayValue = value.replace(".", ",");
     displayValue = displayValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    e.target.value = displayValue;
 
+    // Atualiza inputs
+    e.target.value = displayValue;
     hiddenInput.value = value;
 });
+
+
+// Abre modal
+function abrirModalPlataforma() {
+    document.getElementById("modal-plataforma").style.display = "flex";
+    document.getElementById("nome-plataforma").focus();
+}
+
+// Fecha modal
+function fecharModalPlataforma() {
+    document.getElementById("modal-plataforma").style.display = "none";
+
+    // Limpa campo
+    document.getElementById("nome-plataforma").value = "";
+
+    // Limpa erro
+    document.getElementById("erro-plataforma").textContent = "";
+}
+
+async function salvarPlataforma() {
+
+    const nome = document.getElementById("nome-plataforma").value.trim();
+    const erro = document.getElementById("erro-plataforma");
+
+    // Validação 
+    if (!nome) {
+        erro.textContent = "Digite um nome para a plataforma.";
+        return;
+    }
+
+    // Monta dados
+    const formData = new FormData();
+    formData.append("nome", nome);
+    formData.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+
+    // Envia para o Django
+    const response = await fetch("/plataformas/nova/", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    // Se salvou com sucesso
+    if (data.id) {
+
+        // Adiciona no select automaticamente
+        const select = document.getElementById("id_plataforma");
+        const option = new Option(data.nome, data.id, true, true);
+        select.appendChild(option);
+
+        fecharModalPlataforma();
+
+    } else {
+        erro.textContent = data.erro || "Erro ao salvar.";
+    }
+}
+
+
+// fechar ao clicar fora
+window.onclick = function(event) {
+    const modal = document.getElementById("modal-plataforma");
+
+    if (event.target === modal) {
+        fecharModalPlataforma();
+    }
+}
+
 </script>
 
 {% endblock %}

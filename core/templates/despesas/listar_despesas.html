@@ -1,24 +1,117 @@
-<h2>Despesas</h2>
+{% extends 'base.html' %}
 
-<a href="/despesas/nova/">Nova Despesa</a>
+{% block title %}Despesas{% endblock %}
 
-<ul>
-{% for despesa in despesas %}
-<li>
-    {{ despesa.descricao }} - R$ {{ despesa.valor|floatformat:2 }}
+{% block content %}
 
-    <a href="/despesas/editar/{{ despesa.id }}/">Editar</a>
+<h1>Despesas</h1>
 
-    <form action="/despesas/excluir/{{ despesa.id }}/" method="POST" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" onclick="return confirm('Tem certeza que deseja excluir esta despesa?')">
-            Excluir
+<div class="card">
+
+    <a class="button" href="{% url 'nova_despesa' %}">
+        + Nova Despesa
+    </a>
+
+    <a class="button" href="{% url 'dashboard' %}">
+        ← Dashboard
+    </a>
+
+</div>
+
+<div class="card">
+
+    {% if despesas %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for despesa in despesas %}
+                <tr>
+
+                    <td>{{ despesa.data|date:"d/m/Y" }}</td>
+                    <td>{{ despesa.descricao }}</td>
+                    <td>R$ {{ despesa.valor|floatformat:2 }}</td>
+
+                    <td>
+                        <!-- Editar -->
+                        <a href="{% url 'editar_despesa' despesa.id %}">
+                            Editar
+                        </a>
+
+                        <!-- Excluir com modal -->
+                        <button class="button btn-danger"
+                                onclick="abrirModal({{ despesa.id }}, '{{ despesa.descricao }}')">
+                            Excluir
+                        </button>
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    {% else %}
+        <p>Nenhuma despesa cadastrada ainda.</p>
+    {% endif %}
+
+</div>
+
+<!-- ================= MODAL ================= -->
+<div id="modal-excluir" class="modal">
+    <div class="modal-content">
+
+        <h3>Confirmar Exclusão</h3>
+
+        <p id="modal-texto"></p>
+
+        <form id="form-excluir" method="POST">
+            {% csrf_token %}
+            <button class="button btn-danger" type="submit">
+                Sim, excluir
+            </button>
+        </form>
+
+        <br>
+
+        <button class="button" onclick="fecharModal()">
+            Cancelar
         </button>
-    </form>
-</li>
-{% empty %}
-<li>Nenhuma despesa cadastrada</li>
-{% endfor %}
-</ul>
 
-<a href="/dashboard/">Voltar ao Dashboard</a>
+    </div>
+</div>
+
+<!-- ================= JS ================= -->
+<script>
+function abrirModal(id, descricao) {
+    const modal = document.getElementById("modal-excluir");
+    const texto = document.getElementById("modal-texto");
+    const form = document.getElementById("form-excluir");
+
+    texto.innerText = `Deseja excluir a despesa: "${descricao}"?`;
+
+    form.action = `/despesas/excluir/${id}/`;
+
+    modal.style.display = "flex";
+}
+
+function fecharModal() {
+    document.getElementById("modal-excluir").style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById("modal-excluir");
+    if (event.target === modal) {
+        fecharModal();
+    }
+}
+</script>
+
+{% endblock %}

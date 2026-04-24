@@ -7,8 +7,12 @@
 <h1>Despesas</h1>
 
 <div class="card">
-    <a class="button" href="/despesas/nova/">+ Nova Despesa</a>
-    <a class="button" href="/dashboard/">← Dashboard</a>
+    <a class="button" href="{% url 'nova_despesa' %}">
+        + Nova Despesa
+    </a>
+    <a class="button" href="{% url 'dashboard' %}">
+        ← Dashboard
+    </a>
 </div>
 
 <div class="card">
@@ -29,8 +33,13 @@
                     <td>{{ despesa.descricao }}</td>
                     <td>R$ {{ despesa.valor|floatformat:2 }}</td>
                     <td>
-                        <a href="{% url 'editar_despesa' despesa.id %}">Editar</a>
-                        <a href="{% url 'excluir_despesa' despesa.id %}">Excluir</a>
+                        <a href="{% url 'editar_despesa' despesa.id %}">
+                            Editar
+                        </a>
+                        <button class="button btn-danger"
+                                onclick="abrirModal({{ despesa.id }}, '{{ despesa.descricao }}')">
+                            Excluir
+                        </button>
                     </td>
                 </tr>
                 {% endfor %}
@@ -40,5 +49,49 @@
         <p>Nenhuma despesa cadastrada ainda.</p>
     {% endif %}
 </div>
+
+<!-- MODAL -->
+<div id="modal-excluir" class="modal">
+    <div class="modal-content">
+        <h3>Confirmar Exclusão</h3>
+        <p id="modal-texto"></p>
+
+        <div class="modal-botoes">
+            <form id="form-excluir" method="POST">
+                {% csrf_token %}
+                <button class="button btn-danger" type="submit">
+                    Sim, excluir
+                </button>
+            </form>
+            <button class="button" onclick="fecharModal()">
+                Cancelar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script>
+function abrirModal(id, descricao) {
+    const modal = document.getElementById("modal-excluir");
+    const texto = document.getElementById("modal-texto");
+    const form = document.getElementById("form-excluir");
+
+    texto.innerText = `Deseja excluir a despesa: "${descricao}"?`;
+    form.action = `/despesas/excluir/${id}/`;
+    modal.style.display = "flex";
+}
+
+function fecharModal() {
+    document.getElementById("modal-excluir").style.display = "none";
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById("modal-excluir");
+    if (event.target === modal) {
+        fecharModal();
+    }
+}
+</script>
 
 {% endblock %}

@@ -1,26 +1,32 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Dashboard</title>
 
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-    <!-- FLATPICKR -->
+    <!-- Biblioteca de calendário (Flatpickr) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 
 <body>
 
 <nav>
+    <!-- Barra de navegação -->
+
     <div><strong>DriveFinance</strong></div>
+
     <div class="nav-menu">
-        <a href="/dashboard/">Dashboard</a>
-        <a href="/corridas/">Corridas</a>
-        <a href="/despesas/">Despesas</a>
-        <a href="/logout/">Sair</a>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'lista_corridas' %}">Corridas</a>
+        <a href="{% url 'lista_despesas' %}">Despesas</a>
+        <a href="{% url 'logout' %}">Sair</a>
     </div>
 </nav>
 
@@ -28,70 +34,101 @@
 
     <h1>Painel de Controle</h1>
 
-    <!-- FILTRO -->
+    <!--filtro -->
     <div class="card">
         <h3>Filtrar por período</h3>
 
+        <!-- Filtros rápidos -->
         <div class="filtro-botoes">
-            <a class="button" href="/dashboard/">Todos</a>
-            <a class="button" href="/dashboard/?periodo=hoje">Hoje</a>
-            <a class="button" href="/dashboard/?periodo=semana">7 dias</a>
-            <a class="button" href="/dashboard/?periodo=mes">Mês</a>
+            <a class="button" href="{% url 'dashboard' %}">Todos</a>
+            <a class="button" href="{% url 'dashboard' %}?periodo=hoje">Hoje</a>
+            <a class="button" href="{% url 'dashboard' %}?periodo=semana">7 dias</a>
+            <a class="button" href="{% url 'dashboard' %}?periodo=mes">Mês</a>
         </div>
 
+        <!-- Filtro por data -->
         <form method="GET" class="filtro-data">
             <div>
                 <label for="data">Buscar por data:</label>
-                <input type="text" id="data" name="data" placeholder="Selecione uma data" required>
+                <input 
+                    type="text" 
+                    id="data" 
+                    name="data" 
+                    placeholder="Selecione uma data" 
+                    required
+                >
             </div>
+
             <button type="submit">Buscar</button>
         </form>
     </div>
 
-    <!-- RESUMO -->
+    <!-- RESUMO-->
     <div class="resumo">
+        <!-- Total de ganhos -->
         <div class="resumo-card">
             <p>Ganhos</p>
             <strong>R$ {{ total_corridas|floatformat:2 }}</strong>
         </div>
+
+        <!-- Total de despesas -->
         <div class="resumo-card">
             <p>Despesas</p>
             <strong>R$ {{ total_despesas|floatformat:2 }}</strong>
         </div>
+
+        <!-- Lucro (ganhos - despesas) -->
         <div class="resumo-card">
             <p>Lucro</p>
             <strong>R$ {{ lucro|floatformat:2 }}</strong>
         </div>
     </div>
 
-    <!-- GRID -->
+    <!--GRID-->
     <div class="grid">
 
-        <!-- TABELA -->
+        <!-- tabela de atividades -->
         <div class="card">
             <h3>Resumo de Atividades</h3>
+
             <div class="table-responsive">
                 <table>
-                    <tr>
-                        <th>Data</th>
-                        <th>Descrição</th>
-                        <th>Valor</th>
-                    </tr>
-                    {% for a in atividades %}
-                    <tr>
-                        <td>{{ a.data|date:"d/m/Y" }}</td>
-                        <td>{{ a.descricao }}</td>
-                        {% if a.tipo == 'despesa' %}
-                            <td style="color: #ff6b6b;">- R$ {{ a.valor|floatformat:2 }}</td>
-                        {% else %}
-                            <td style="color: #69db7c;">+ R$ {{ a.valor|floatformat:2 }}</td>
-                        {% endif %}
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3">Nenhuma atividade cadastrada</td>
-                    </tr>
-                    {% endfor %}
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for a in atividades %}
+                        <!-- Loop de atividades (corridas + despesas) -->
+
+                        <tr>
+                            <td>{{ a.data|date:"d/m/Y" }}</td>
+                            <td>{{ a.descricao }}</td>
+
+                            {% if a.tipo == 'despesa' %}
+                                <!-- Valor negativo -->
+                                <td style="color: #ff6b6b;">
+                                    - R$ {{ a.valor|floatformat:2 }}
+                                </td>
+                            {% else %}
+                                <!-- Valor positivo -->
+                                <td style="color: #69db7c;">
+                                    + R$ {{ a.valor|floatformat:2 }}
+                                </td>
+                            {% endif %}
+                        </tr>
+
+                        {% empty %}
+                        <!-- se não tiver dados -->
+                        <tr>
+                            <td colspan="3">Nenhuma atividade cadastrada</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -99,8 +136,10 @@
         <!-- GRÁFICO -->
         <div class="card">
             <h3>Visão Geral</h3>
+
             <div class="grafico-wrapper">
                 <canvas id="graficoGanhos"></canvas>
+                <!-- Área onde o gráfico será renderizado -->
             </div>
         </div>
 
@@ -108,55 +147,62 @@
 
 </div>
 
-<!-- CHART -->
+<!-- Biblioteca de gráficos -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- FLATPICKR -->
+<!-- Biblioteca de calendário -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-    flatpickr("#data", {
-        dateFormat: "Y-m-d",
-        altInput: true,
-        altFormat: "d/m/Y",
-        allowInput: false,
-        monthSelectorType: "static",
-        disableMobile: true
-    });
+/* CALENDÁRIO  */
+flatpickr("#data", {
+    dateFormat: "Y-m-d",  
+    altInput: true,       
+    altFormat: "d/m/Y",    // formato visível ao usuário
+    allowInput: false,
+    monthSelectorType: "static",
+    disableMobile: true
+});
 
-    // GRÁFICO
-    const labelsGrafico = JSON.parse('{{ labels|escapejs }}');
-    const valoresGrafico = JSON.parse('{{ valores|escapejs }}');
+/* GRÁFICO  */
 
-    const ctx = document.getElementById('graficoGanhos').getContext('2d');
+const labelsGrafico = JSON.parse('{{ labels|escapejs }}');
+const valoresGrafico = JSON.parse('{{ valores|escapejs }}');
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labelsGrafico,
-            datasets: [{
-                label: 'Ganhos',
-                data: valoresGrafico,
-                borderColor: '#4fc3f7',
-                backgroundColor: 'rgba(79, 195, 247, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            plugins: {
-                legend: {
-                    labels: { color: '#ffffff' }
-                }
-            },
-            scales: {
-                x: { ticks: { color: '#cccccc' } },
-                y: { ticks: { color: '#cccccc' } }
+const ctx = document.getElementById('graficoGanhos').getContext('2d');
+
+// Criação do gráfico
+new Chart(ctx, {
+    type: 'line',
+
+    data: {
+        labels: labelsGrafico,
+        datasets: [{
+            label: 'Ganhos',
+            data: valoresGrafico,
+            borderColor: '#4fc3f7',
+            backgroundColor: 'rgba(79, 195, 247, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+
+        plugins: {
+            legend: {
+                labels: { color: '#ffffff' }
             }
+        },
+
+        scales: {
+            x: { ticks: { color: '#cccccc' } },
+            y: { ticks: { color: '#cccccc' } }
         }
-    });
+    }
+});
 </script>
 
 </body>

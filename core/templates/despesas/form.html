@@ -1,60 +1,86 @@
 {% extends 'base.html' %}
-
 {% block title %}Nova Despesa{% endblock %}
+
 
 {% block content %}
 
 <h1>Nova Despesa</h1>
 
 <div class="card">
-<form method="POST">
-    {% csrf_token %}
 
-    <div>
-        <label for="id_descricao">Descrição</label>
-        {{ form.descricao }}
-    </div>
+    <form method="POST">
+        {% csrf_token %}
+        <!-- Proteção contra ataques CSRF -->
 
-    <div>
-        <label for="valor_display">Valor</label>
-        <div class="input-money">
-            <span>R$</span>
-            <input 
-                type="text" 
-                id="valor_display"
-                placeholder="0,00"
-                required
-            >
+        <div>
+            <label for="id_descricao">Descrição</label>
+            {{ form.descricao }}
         </div>
-        {{ form.valor.as_hidden }}
-    </div>
 
-    <div>
-        <label for="id_data">Data</label>
-        {{ form.data }}
-    </div>
+        <div>
+            <label for="valor_display">Valor</label>
 
-    <button class="button" type="submit">Salvar</button>
-</form>
+            <div class="input-money">
+                <span>R$</span>
+
+                <input 
+                    type="text" 
+                    id="valor_display"
+                    placeholder="0,00"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    required
+                >
+            </div>
+
+            {{ form.valor.as_hidden }}
+            <!-- Campo que será enviado ao backend -->
+        </div>
+
+        <div>
+            <label for="id_data">Data</label>
+            {{ form.data }}
+            <!-- Campo de data -->
+        </div>
+
+        <button class="button" type="submit">
+            Salvar
+        </button>
+        <!-- Envia o formulário -->
+
+        <a class="button" href="{% url 'lista_despesas' %}">
+            ← Voltar
+        </a>
+        <!-- Retorna para a listagem (boa prática com URL dinâmica) -->
+
+    </form>
 </div>
 
+<!-- Script para formatar o valor em moeda (Real - BRL) -->
 <script>
 const display = document.getElementById("valor_display");
-const hiddenInput = document.getElementById("id_valor");
+const hiddenInput = document.getElementById("id_valor"); 
 
+// Evento disparado ao digitar no campo
 display.addEventListener("input", function (e) {
+
+    // Remove tudo que não for número
     let digits = e.target.value.replace(/\D/g, "");
 
+    // limpa os campos se não houver valor
     if (!digits) {
         e.target.value = "";
         hiddenInput.value = "";
         return;
     }
 
+    // Converte os dígitos para número decimal
     let number = parseInt(digits, 10) / 100;
 
+    // Atualiza o valor que será enviado ao backend
     hiddenInput.value = number.toFixed(2);
 
+    // Formata o valor no padrão brasileiro
     e.target.value = number.toLocaleString("pt-BR", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2

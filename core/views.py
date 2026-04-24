@@ -2,26 +2,28 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, timedelta
-from django.db.models import Sum
-from .models import Corrida, Despesa, Motorista
-from .forms import CorridaForm, DespesaForm
-import json
 from django.contrib.auth.models import User
-from django.shortcuts import render
+from django.db.models import Sum
+from datetime import datetime, timedelta
+import json
+from django.http import JsonResponse
+from .models import Corrida, Despesa, Motorista, Plataforma
+from .forms import CorridaForm, DespesaForm
 
 
 def get_motorista(user):
+    # Retorna o motorista relacionado ao usuário logado
     return Motorista.objects.filter(usuario=user).first()
 
 
-# DASHBOARD
+# dashboard
 @login_required
 def dashboard(request):
     motorista = get_motorista(request.user)
 
     if not motorista:
-        return render(request, 'dashboard.html', {'erro': 'Motorista não encontrado.'})
+        messages.error(request, "Motorista não encontrado.")
+        return redirect('login')
 
     hoje = datetime.now()
     periodo = request.GET.get('periodo')
@@ -30,13 +32,14 @@ def dashboard(request):
     corridas = Corrida.objects.filter(motorista=motorista)
     despesas = Despesa.objects.filter(motorista=motorista)
 
+    # filtros
     if data_filtro:
         try:
             data_convertida = datetime.strptime(data_filtro, "%Y-%m-%d").date()
             corridas = corridas.filter(data=data_convertida)
             despesas = despesas.filter(data=data_convertida)
         except ValueError:
-            return render(request, 'dashboard.html', {'erro': 'Data inválida.'})
+            messages.error(request, "Data inválida.")
 
     elif periodo == 'hoje':
         corridas = corridas.filter(data=hoje.date())
@@ -51,14 +54,17 @@ def dashboard(request):
         corridas = corridas.filter(data__month=hoje.month, data__year=hoje.year)
         despesas = despesas.filter(data__month=hoje.month, data__year=hoje.year)
 
+    # resumo
     total_corridas = corridas.aggregate(Sum('valor'))['valor__sum'] or 0
     total_despesas = despesas.aggregate(Sum('valor'))['valor__sum'] or 0
     lucro = total_corridas - total_despesas
 
+    # grafico
     ganhos_por_plataforma = corridas.values('plataforma__nome').annotate(total=Sum('valor'))
     labels = [item['plataforma__nome'] for item in ganhos_por_plataforma]
     valores = [float(item['total']) for item in ganhos_por_plataforma]
 
+    # atividades
     atividades = []
 
     for c in corridas:
@@ -77,6 +83,7 @@ def dashboard(request):
             'tipo': 'despesa'
         })
 
+    # Ordena por data
     atividades.sort(key=lambda x: x['data'], reverse=True)
 
     return render(request, 'dashboard.html', {
@@ -88,7 +95,8 @@ def dashboard(request):
         'valores': json.dumps(valores),
     })
 
-# LOGIN / LOGOUT
+
+# login
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -110,7 +118,7 @@ def logout_view(request):
     return redirect('login')
 
 
-# CORRIDAS
+# corridas
 @login_required
 def criar_corrida(request):
     motorista = get_motorista(request.user)
@@ -127,9 +135,7 @@ def criar_corrida(request):
             corrida.motorista = motorista
             corrida.save()
             messages.success(request, "Corrida cadastrada com sucesso!")
-            return redirect('listar_corridas')
-        else:
-            messages.error(request, "Erro ao cadastrar corrida. Verifique os campos.")
+            return redirect('lista_corridas')
     else:
         form = CorridaForm()
 
@@ -150,23 +156,14 @@ def editar_corrida(request, id):
     corrida = get_object_or_404(Corrida, id=id, motorista=motorista)
 
     if request.method == 'POST':
-        post = request.POST.copy()
-
-        valor = post.get('valor')
-        if valor:
-            valor = valor.replace('.', '').replace(',', '.')
-            post['valor'] = valor
-
-        form = CorridaForm(post, instance=corrida)
+        form = CorridaForm(request.POST, instance=corrida)
 
         if form.is_valid():
             corrida = form.save(commit=False)
             corrida.motorista = motorista
             corrida.save()
             messages.success(request, "Corrida atualizada com sucesso!")
-            return redirect('listar_corridas')
-        else:
-            messages.error(request, "Erro ao atualizar corrida. Verifique os campos.")
+            return redirect('lista_corridas')
     else:
         form = CorridaForm(instance=corrida)
 
@@ -181,12 +178,12 @@ def excluir_corrida(request, id):
     if request.method == 'POST':
         corrida.delete()
         messages.success(request, "Corrida excluída com sucesso!")
-        return redirect('listar_corridas')
+        return redirect('lista_corridas')
 
     return render(request, 'corridas/confirmar_exclusao.html', {'corrida': corrida})
 
 
-# DESPESAS
+# despesas
 @login_required
 def criar_despesa(request):
     motorista = get_motorista(request.user)
@@ -203,9 +200,7 @@ def criar_despesa(request):
             despesa.motorista = motorista
             despesa.save()
             messages.success(request, "Despesa cadastrada com sucesso!")
-            return redirect('listar_despesas')
-        else:
-            messages.error(request, "Erro ao cadastrar despesa. Verifique os campos.")
+            return redirect('lista_despesas')
     else:
         form = DespesaForm()
 
@@ -233,9 +228,7 @@ def editar_despesa(request, id):
             despesa.motorista = motorista
             despesa.save()
             messages.success(request, "Despesa atualizada com sucesso!")
-            return redirect('listar_despesas')
-        else:
-            messages.error(request, "Erro ao atualizar despesa. Verifique os campos.")
+            return redirect('lista_despesas')
     else:
         form = DespesaForm(instance=despesa)
 
@@ -250,11 +243,12 @@ def excluir_despesa(request, id):
     if request.method == 'POST':
         despesa.delete()
         messages.success(request, "Despesa excluída com sucesso!")
-        return redirect('listar_despesas')
+        return redirect('lista_despesas')
 
-    return render(request, 'despesas/confirmar_exclusao.html', {'despesa': despesa})
+    return redirect('lista_despesas')
 
-# CADASTRO
+
+# cadastro
 def cadastro_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -287,41 +281,18 @@ def cadastro_view(request):
     return render(request, 'cadastro.html')
 
 
-# CADASTRO
-def cadastro_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password = request.POST.get("password")
-        confirmar = request.POST.get("confirmar")
-
-        if password != confirmar:
-            messages.error(request, "As senhas não coincidem.")
-            return render(request, 'cadastro.html')
-
-        if len(password) < 6:
-            messages.error(request, "A senha deve ter pelo menos 6 caracteres.")
-            return render(request, 'cadastro.html')
-
-        if User.objects.filter(username=username).exists():
-            messages.error(request, "Esse usuário já existe.")
-            return render(request, 'cadastro.html')
-
-        if User.objects.filter(email=email).exists():
-            messages.error(request, "Esse e-mail já está cadastrado.")
-            return render(request, 'cadastro.html')
-
-        user = User.objects.create_user(username=username, email=email, password=password)
-        Motorista.objects.create(usuario=user)
-
-        messages.success(request, "Conta criada com sucesso! Faça login.")
-        return redirect('login')
-
-    return render(request, 'cadastro.html')
-
-
-# HOME
+# home
 def home(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'home.html')
+
+@login_required
+def criar_plataforma(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        if nome:
+            plataforma, created = Plataforma.objects.get_or_create(nome=nome)
+            return JsonResponse({'id': plataforma.id, 'nome': plataforma.nome})
+        return JsonResponse({'erro': 'Nome inválido'}, status=400)
+    return JsonResponse({'erro': 'Método não permitido'}, status=405)
